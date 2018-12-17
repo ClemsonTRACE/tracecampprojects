@@ -1,14 +1,14 @@
 from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from . models import KickstarterCampaign
-from . serializers import KickstarterCampaignSerializer
+from django.http import HttpResponse
+from django.core import serializers
 
-class KickstarterCampaignList(APIView):
-    def get(self, request):
-        KickstarterCampaigns = KickstarterCampaign.objects.all()
-        serializer=KickstarterCampaignSerializer(KickstarterCampaigns, many=True)
-        return Response(serializer.data)
-    def post(self):
-        pass
-         
+def get_kickstarter(request, id):
+    instance =  KickstarterCampaign.objects.filter(id = id)
+    json = serializers.serialize('json', instance, fields=('backers_count','blurb'))
+    return HttpResponse(json)
+
+def get_all_kickstarter(request):
+    instance =  KickstarterCampaign.objects.all()
+    json = serializers.serialize('json', instance, fields=('backers_count','blurb'))
+    return HttpResponse(json)
