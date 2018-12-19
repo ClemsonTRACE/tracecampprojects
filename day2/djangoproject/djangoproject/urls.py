@@ -6,5 +6,5 @@ from api import views
 urlpatterns = [
     # path('admin/', admin.site.urls),
     path('api/', views.KickstarterCampaignList.as_view()), 
-    path('api/<int:kick_id>/', views.KickstarterCampaignSingle.as_view()), 
+    path('api/<int:id>/', views.KickstarterCampaignSingle.as_view()), 
 ]

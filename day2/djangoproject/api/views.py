@@ -1,43 +1,32 @@
-from django.shortcuts import render
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.contrib.auth.models import User
+from rest_framework.generics import GenericAPIView
+from rest_framework.permissions import IsAdminUser
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin
+
 from . models import KickstarterCampaign
 from . serializers import KickstarterCampaignSerializer
 
-class KickstarterCampaignList(APIView):
-    def get(self, request):
-        KickstarterCampaigns = KickstarterCampaign.objects.all()
-        serializer=KickstarterCampaignSerializer(KickstarterCampaigns, many=True)
-        return Response(serializer.data)
-    def post(self):
-        serializer = KickstarterCampaignSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class KickstarterCampaignList(ListModelMixin, CreateModelMixin, GenericAPIView):
+    queryset = KickstarterCampaign.objects.all()
+    serializer_class = KickstarterCampaignSerializer
+    
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
 
-class KickstarterCampaignSingle(APIView):
-    def get_object(self, kick_id):
-        try:
-            return KickstarterCampaign.objects.get(id=kick_id)
-        except KickstarterCampaign.DoesNotExist:
-            raise Http404
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
-    def get(self, request, kick_id, format=None):
-        campaign = self.get_object(kick_id)
-        serializer = KickstarterCampaignSerializer(campaign)
-        return Response(serializer.data)
+class KickstarterCampaignSingle(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericAPIView):
+    queryset = KickstarterCampaign.objects.all()
+    serializer_class = KickstarterCampaignSerializer
+    lookup_field='id'
 
-    def put(self, request, kick_id, format=None):
-        campaign = self.get_object(kick_id)
-        serializer = KickstarterCampaignSerializer(campaign, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
 
-    def delete(self, request, kick_id, format=None):
-        campaign = self.get_object(kick_id)
-        campaign.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-         
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)    
+
