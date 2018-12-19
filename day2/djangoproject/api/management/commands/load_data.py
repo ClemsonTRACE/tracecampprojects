@@ -15,7 +15,11 @@ class Command(BaseCommand):
         KickstarterCampaign.objects.all().delete()
         with open(path, 'rt', encoding='utf-8') as f:
             reader = csv.reader(f, dialect='excel')
+            count = 0
             for row in reader:
+                if count == 0:
+                    count += 1
+                    continue
                 campaign = KickstarterCampaign.objects.create(
                     backers_count=row[0],
                     blurb=row[1],
